@@ -1,4 +1,4 @@
-# IoTHub OPCDA Connector
+# Azure IoTHub OPC DA Connector
 This is a Java Implementation to connect OPC DA Server to Azure IoTHub.
 
 ```java
@@ -42,10 +42,10 @@ public class QuickStart {
 }
 ```
 
-### Please refer this link to set user connecting to OPC DA server
+#### Please refer this link to set user connecting to OPC DA server
 
 http://www.j-interop.org/quickstart.html
 
-### Download a desktop Application from release to try it.
+#### Download a desktop Application from release to try it.
 ![Desktop App](/MainFrame.png)
  
