@@ -4,8 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,9 @@ import com.github.mayemsft.iot.opcda.connector.OPCDAItemDataReader;
 import com.github.mayemsft.iot.opcda.connector.OPCDAItemDataReader.DataItem;
 import com.github.mayemsft.iot.opcda.connector.OPCDAItemInfoReader;
 import com.github.mayemsft.iot.opcda.connector.OPCDAServerInfoReader;
+import com.github.mayemsft.iot.opcda.connector.SendEvent;
+import com.microsoft.azure.sdk.iot.device.IotHubStatusCode;
+import com.microsoft.azure.sdk.iot.device.Message;
 
 public class MainFrame extends JFrame {
 
@@ -42,6 +47,8 @@ public class MainFrame extends JFrame {
 	private OPCDAItemInfoReader itemInfoReader;
 
 	private OPCDAItemDataReader opcdaItemDataReader;
+	
+	private SendEvent sendEvent;
 
 	public MainFrame(String string) {
 		super(string);
@@ -53,6 +60,8 @@ public class MainFrame extends JFrame {
 		ex.printStackTrace();
 		area.setText(errors.toString());
 	}
+	
+	
 	
 	private void init() {
 
@@ -102,7 +111,7 @@ public class MainFrame extends JFrame {
 		final JTextField periodField = new JTextField();
 		formPanel.add(periodField);
 
-		formPanel.add(new JLabel("IoTHub Key"));
+		formPanel.add(new JLabel("IoTHub Connection String"));
 		final JTextField iothubKeyField = new JTextField();
 		formPanel.add(iothubKeyField);
 
@@ -111,10 +120,7 @@ public class MainFrame extends JFrame {
 		formPanel.add(connectBtn);
 
 		final DefaultListModel<String> listModel = new DefaultListModel<String>();
-		// l1.addElement("C");
-		// l1.addElement("C++");
-		// l1.addElement("Java");
-		// l1.addElement("PHP");
+
 		final JList<String> itemList = new JList<String>(listModel);
 		itemsPanel.add(new JScrollPane(itemList), BorderLayout.CENTER);
 
@@ -219,21 +225,23 @@ public class MainFrame extends JFrame {
 				}
 
 				if (!opcdaItemDataReader.isStarted()) {
-					opcdaItemDataReader.deleteObservers();
-					opcdaItemDataReader.addObserver(new Observer() {
-
-						public void update(Observable o, Object arg) {
-							try {
-								Item item = (Item) arg;
-								String id = item.getId();
-								DataItem dataItem = OPCDAItemDataReader.parseValue(id, item.read(false));
-								msgTextArea.append(dataItem.toJson() + "\n");
-							} catch (Exception e1) {
-								showError(e1, msgTextArea);
-							}
-
-						}
-					});
+//					opcdaItemDataReader.deleteObservers();
+//					opcdaItemDataReader.addObserver(new Observer() {
+//
+//						public void update(Observable o, Object arg) {
+//							try {
+//								Item item = (Item) arg;
+//								String id = item.getId();
+//								DataItem dataItem = OPCDAItemDataReader.parseValue(id, item.read(false));
+//								msgTextArea.append(dataItem.toJson() + "\n");
+//								
+//							} catch (Exception e1) {
+//								showError(e1, msgTextArea);
+//								
+//							}
+//
+//						}
+//					});
 
 					List<String> selectedItem = itemList.getSelectedValuesList();
 					String[] array = new String[selectedItem.size()];
@@ -247,11 +255,42 @@ public class MainFrame extends JFrame {
 					} 
 					
 					
+					try {
+						sendEvent = new SendEvent(iothubKey, opcdaItemDataReader, (long)period, new Observer() {
+
+							public void update(Observable o, Object arg) {
+								try {
+									Message message = ((SendEvent.SendContext)arg).getMsg();
+									String msgStr = ((SendEvent.SendContext)arg).getMsgStr();
+									IotHubStatusCode code = ((SendEvent.SendContext)arg).getStatus();
+									msgTextArea.append("[Send To IoTHub]: "+code.name()+"; "+ msgStr + "\n");
+								
+								} catch (Exception e1) {
+									showError(e1, msgTextArea);
+									
+								}
+
+							}
+						});
+						
+						sendEvent.start();
+					} catch (IllegalArgumentException e2) {
+						showError(e2, msgTextArea);
+					} catch (URISyntaxException e2) {
+						showError(e2, msgTextArea);
+					} catch (IOException e2) {
+						showError(e2, msgTextArea);
+					}
+					
+					
 				} else {
 					try {
+						sendEvent.stop();
 						opcdaItemDataReader.stop();
 						startBtn.setText("Start");
 					} catch (JIException e1) {
+						showError(e1, msgTextArea);
+					} catch (IOException e1) {
 						showError(e1, msgTextArea);
 					}
 					
@@ -275,12 +314,15 @@ public class MainFrame extends JFrame {
 		clsIdField.setText("");
 		iothubKeyField.setText("");
 		periodField.setText("1000");
+		
+
 	}
 
 	public static void main(String s[]) {
 
 		MainFrame frame = new MainFrame("OPCDA Azure IoTHub Connector");
 		frame.init();
-
+		
+		
 	}
 }

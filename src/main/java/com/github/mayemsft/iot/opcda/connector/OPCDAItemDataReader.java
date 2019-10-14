@@ -139,8 +139,9 @@ public class OPCDAItemDataReader extends Observable {
 	    for(String item : items) {
 		    access.addItem(item, new DataCallback() {
 		        public void changed(final Item item, final ItemState state) {
-		        	OPCDAItemDataReader.this.notifyObservers(item);
 		        	OPCDAItemDataReader.this.setChanged();
+		        	OPCDAItemDataReader.this.notifyObservers(item);
+		        	
 		        }
 		      });
 	    }
