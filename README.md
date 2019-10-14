@@ -48,4 +48,5 @@ http://www.j-interop.org/quickstart.html
 
 #### Download a desktop Application from release to try it.
 ![Desktop App](/MainFrame.png)
+![Desktop App](/MainFrame2.png)
  
