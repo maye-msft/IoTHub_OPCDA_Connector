@@ -1,8 +1,17 @@
-# IoTHub OPCDA Connector
-This is a Java Implementation to connect OPC DA Server to Azure IoTHub.
+package com.github.mayemsft.iot.opcda.ui;
 
-```java
+import java.net.URISyntaxException;
+import java.util.Observable;
+import java.util.Observer;
+
+import com.github.mayemsft.iot.opcda.connector.OPCDAItemDataReader;
+import com.github.mayemsft.iot.opcda.connector.SendEvent;
+import com.microsoft.azure.sdk.iot.device.IotHubStatusCode;
+import com.microsoft.azure.sdk.iot.device.Message;
+
 public class QuickStart {
+
+
 
 	public QuickStart(String host, String domain, String user, String password, String clsId, int period,
 			String iothubKey) throws Exception {
@@ -39,10 +48,6 @@ public class QuickStart {
 		}
 	}
 
+	
+
 }
-```
-
-Please refer this link to set user connecting to OPC DA server
-http://www.j-interop.org/quickstart.html
-
- 
