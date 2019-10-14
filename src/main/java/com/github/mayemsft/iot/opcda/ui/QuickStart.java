@@ -11,8 +11,6 @@ import com.microsoft.azure.sdk.iot.device.Message;
 
 public class QuickStart {
 
-
-
 	public QuickStart(String host, String domain, String user, String password, String clsId, int period,
 			String iothubKey) throws Exception {
 		super();
@@ -47,7 +45,5 @@ public class QuickStart {
 			e.printStackTrace();
 		}
 	}
-
-	
 
 }
